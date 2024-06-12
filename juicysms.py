@@ -1,3 +1,5 @@
+"please write a python script to extract the contents of the website https://juicysms.com/api/makeorder?key=84d68632bdcc580a68c988a73cda3bbf&serviceId=1&country=US, then wait 10 seconds, then extract the content from https://juicysms.com/api/getsms?key=84d68632bdcc580a68c988a73cda3bbf&orderId= where "orderId=" should then be populated with the 7 digit code that comes after "ORDER_ID_" in the first link's contents"
+
 import requests
 import time
 

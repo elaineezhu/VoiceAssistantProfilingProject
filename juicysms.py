@@ -8,7 +8,6 @@ def get_order_id(api_key, service_id, country):
     response.raise_for_status()
     try:
         data = response.json()
-        # Assuming the order ID is in the format "ORDER_ID_xxxxxxx"
         order_id = data['order_id'].split('_')[-1]
         return order_id
     except ValueError:

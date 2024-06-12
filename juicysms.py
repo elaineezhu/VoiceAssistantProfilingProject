@@ -1,29 +1,54 @@
-"please write a python script to extract the contents of the website https://juicysms.com/api/makeorder?key=84d68632bdcc580a68c988a73cda3bbf&serviceId=1&country=US, then wait 10 seconds, then extract the content from https://juicysms.com/api/getsms?key=84d68632bdcc580a68c988a73cda3bbf&orderId= where "orderId=" should then be populated with the 7 digit code that comes after "ORDER_ID_" in the first link's contents"
-
 import requests
 import time
 
-# Define the initial URL
-initial_url = "https://juicysms.com/api/makeorder?key=84d68632bdcc580a68c988a73cda3bbf&serviceId=1&country=US"
+# Function to extract contents from the first URL
+def get_order_id(api_key, service_id, country):
+    url = f"https://juicysms.com/api/makeorder?key={api_key}&serviceId={service_id}&country={country}"
+    response = requests.get(url)
+    response.raise_for_status()
+    try:
+        data = response.json()
+        # Assuming the order ID is in the format "ORDER_ID_xxxxxxx"
+        order_id = data['order_id'].split('_')[-1]
+        return order_id
+    except ValueError:
+        # If the response is not JSON, return the text content
+        print("Error: Response is not in JSON format")
+        return response.text
 
-# Make a request to the initial URL
-response = requests.get(initial_url)
-initial_content = response.text
+# Function to extract contents from the second URL
+def get_sms(api_key, order_id):
+    url = f"https://juicysms.com/api/getsms?key={api_key}&orderId={order_id}"
+    response = requests.get(url)
+    response.raise_for_status()
+    try:
+        data = response.json()
+        return data
+    except ValueError:
+        # If the response is not JSON, return the text content
+        print("Error: Response is not in JSON format")
+        return response.text
 
-# Extract the order ID from the initial content
-order_id_start = "ORDER_ID_"
-order_id_end = initial_content.find("&")
-order_id = initial_content[initial_content.find(order_id_start) + len(order_id_start):order_id_end]
+def main():
+    api_key = "84d68632bdcc580a68c988a73cda3bbf"
+    service_id = 1
+    country = "US"
 
-# Wait for 10 seconds
-time.sleep(10)
+    try:
+        order_id = get_order_id(api_key, service_id, country)
+        if isinstance(order_id, str) and order_id.startswith("ORDER_ID_"):
+            print(f"Order ID: {order_id}")
+            
+            time.sleep(10)  # Wait for 10 seconds
+            
+            sms_data = get_sms(api_key, order_id)
+            print("SMS Data:", sms_data)
+        else:
+            print("Failed to get a valid Order ID.")
+            print("Response text:", order_id)
+    
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
 
-# Define the second URL with the extracted order ID
-second_url = f"https://juicysms.com/api/getsms?key=84d68632bdcc580a68c988a73cda3bbf&orderId={order_id}"
-
-# Make a request to the second URL
-response = requests.get(second_url)
-second_content = response.text
-
-# Print the extracted content from the second URL
-print(second_content)
+if __name__ == "__main__":
+    main()

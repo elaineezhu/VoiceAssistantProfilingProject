@@ -15,6 +15,7 @@ def get_order_id(api_key, service_id, country):
     try:
         full_order_id = order_id_text.strip()
         number = full_order_id.split('NUMBER_')[-1]
+        number = number[1:]
         order_id = full_order_id.split('ORDER_ID_')[1].split('_NUMBER')[0]
         return order_id, number
     except IndexError:
@@ -54,12 +55,20 @@ def main():
             print(f"Order ID: {order_id}")
             print(f"Number: {number}")
 
-            time.sleep(30)  # Wait for 30 seconds
+            while True:
+                sms_data = get_sms(api_key, order_id)
+                print("SMS Data:", sms_data)
 
-            sms_data = get_sms(api_key, order_id)
-            print("SMS Data:", sms_data)
+                if "success_" in sms_data.lower():
+                    digits = ''.join(filter(str.isdigit, sms_data))
+                    otp = digits[-6:]
+                    print(f"Code: {otp}")
+                    break
 
-            time.sleep(30)
+                time.sleep(10)  # Wait for 10 seconds before checking again
+
+            # Wait for 10 seconds before skipping the number
+            time.sleep(10)
 
             # Skip the number after processing SMS
             skip_response = skip_number(api_key, order_id)

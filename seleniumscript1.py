@@ -44,8 +44,8 @@ if __name__ == "__main__":
     driver = Driver(uc=True)
 
     # Login credentials
-    username = "bamtrisno24"
-    password = "RouterGreen"
+    username = "USERNAME"
+    password = "PASSWORD"
 
     # Perform Google login
     google_login(driver, username, password)
